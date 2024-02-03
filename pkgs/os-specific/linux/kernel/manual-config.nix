@@ -49,15 +49,19 @@ in lib.makeOverridable ({
 
   # Whether to utilize the controversial import-from-derivation feature to parse the config
   allowImportFromDerivation ? false,
-  # ignored
-  features ? null, lib ? lib_, stdenv ? stdenv_,
-}:
+  features ? {   iwlwifi = true; 
+    efiBootStub = true; 
+    needsCifsUtils = true; 
+    netfilterRPFilter = true; 
+    ia32Emulation = true;     },
+    lib ? lib_, stdenv ? stdenv_,
+ }:
 
 let
   inherit (lib)
     hasAttr getAttr optional optionals optionalString optionalAttrs maintainers platforms;
 
-  drvAttrs = config_: kernelConf: kernelPatches: configfile:
+  drvAttrs = config_: kernelConf: kernelPatches: configfile: features:
     let
       config = let attrName = attr: "CONFIG_" + attr; in {
         isSet = attr: hasAttr (attrName attr) config;
@@ -95,7 +99,7 @@ let
     in (optionalAttrs isModular { outputs = [ "out" "dev" ]; }) // {
       passthru = rec {
         inherit version modDirVersion config kernelPatches configfile
-          moduleBuildDependencies stdenv;
+          features moduleBuildDependencies stdenv;
         inherit isZen isHardened isLibre withRust;
         isXen = lib.warn "The isXen attribute is deprecated. All Nixpkgs kernels that support it now have Xen enabled." true;
         baseVersion = lib.head (lib.splitString "-rc" version);
@@ -372,7 +376,7 @@ in
 assert lib.versionOlder version "5.8" -> libelf != null;
 assert lib.versionAtLeast version "5.8" -> elfutils != null;
 
-stdenv.mkDerivation ((drvAttrs config stdenv.hostPlatform.linux-kernel kernelPatches configfile) // {
+stdenv.mkDerivation ((drvAttrs config stdenv.hostPlatform.linux-kernel kernelPatches configfile features) // {
   pname = "linux";
   inherit version;
 
