@@ -16,7 +16,6 @@
 , dbus
 , emacsPackagesFor
 , fetchpatch
-, gconf
 , gettext
 , giflib
 , glib-networking
@@ -60,6 +59,7 @@
 , texinfo
 , webkitgtk
 , wrapGAppsHook3
+, zlib
 
 # Boolean flags
 , withNativeCompilation ? stdenv.buildPlatform.canExecute stdenv.hostPlatform
@@ -72,7 +72,6 @@
 , withDbus ? stdenv.isLinux
 , withGTK2 ? false
 , withGTK3 ? withPgtk && !noGui
-, withGconf ? false
 , withGlibNetworking ? withPgtk || withGTK3 || (withX && withXwidgets)
 , withGpm ? stdenv.isLinux
 , withImageMagick ? lib.versionOlder version "27" && (withX || withNS)
@@ -125,7 +124,6 @@ assert withAcl -> stdenv.isLinux;
 assert withAlsaLib -> stdenv.isLinux;
 assert withGTK2 -> !(withGTK3 || withPgtk);
 assert withGTK3 -> !withGTK2 || withPgtk;
-assert withGconf -> withX;
 assert withGpm -> stdenv.isLinux;
 assert withNS -> stdenv.isDarwin && !(withX || variant == "macport");
 assert withPgtk -> withGTK3 && !withX;
@@ -135,8 +133,8 @@ let
   libGccJitLibraryPaths = [
     "${lib.getLib libgccjit}/lib/gcc"
     "${lib.getLib stdenv.cc.libc}/lib"
-  ] ++ lib.optionals (stdenv.cc?cc.libgcc) [
-    "${lib.getLib stdenv.cc.cc.libgcc}/lib"
+  ] ++ lib.optionals (stdenv.cc?cc.lib.libgcc) [
+    "${lib.getLib stdenv.cc.cc.lib.libgcc}/lib"
   ];
 
   inherit (if variant == "macport"
@@ -223,8 +221,6 @@ mkDerivation (finalAttrs: {
     jansson
     libxml2
     ncurses
-  ] ++ lib.optionals withGconf [
-    gconf
   ] ++ lib.optionals withAcl [
     acl
   ] ++ lib.optionals withAlsaLib [
@@ -250,6 +246,7 @@ mkDerivation (finalAttrs: {
     glib-networking
   ] ++ lib.optionals withNativeCompilation [
     libgccjit
+    zlib
   ] ++ lib.optionals withImageMagick [
     imagemagick
   ] ++ lib.optionals withPgtk [
@@ -298,12 +295,13 @@ mkDerivation (finalAttrs: {
     OSAKit
     Quartz
     QuartzCore
-    UniformTypeIdentifiers
     WebKit
     # TODO are these optional?
     GSS
     ImageCaptureCore
     ImageIO
+  ] ++ lib.optionals (variant == "macport" && stdenv.hostPlatform.isAarch64) [
+    UniformTypeIdentifiers
   ];
 
   # Emacs needs to find movemail at run time, see info (emacs) Movemail

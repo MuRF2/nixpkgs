@@ -23,13 +23,13 @@
 
 let
   pname = "devpod";
-  version = "0.5.12";
+  version = "0.5.19";
 
   src = fetchFromGitHub {
     owner = "loft-sh";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-5JdA5isU4TNqOX8b2mLHLfVBkLNkh6SdaRUXdZHjEM0=";
+    sha256 = "sha256-SQac42C6tVFSP5Gx2s6uP4OKW+b+FoT7/+Lo3W178p0=";
   };
 
   meta = with lib; {
@@ -96,7 +96,7 @@ rec {
         dontInstall = true;
       };
 
-      rustTargetPlatformSpec = rust.toRustTargetSpec stdenv.hostPlatform;
+      rustTargetPlatformSpec = stdenv.hostPlatform.rust.rustcTarget;
     in
     rustPlatform.buildRustPackage {
       inherit version src;
