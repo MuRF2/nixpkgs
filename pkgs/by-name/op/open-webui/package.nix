@@ -19,6 +19,8 @@ let
   frontend = buildNpmPackage {
     inherit pname version src;
 
+    NODE_OPTIONS = "--max-old-space-size=4096";
+
     npmDepsHash = "sha256-fr+IA6I1pE+vJ+uGE1sf2++s65rPzK//ZL+xT3QoLOA=";
 
     # Disabling `pyodide:fetch` as it downloads packages during `buildPhase`
