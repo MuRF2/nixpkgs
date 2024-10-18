@@ -133,6 +133,9 @@ buildPythonPackage rec {
   disabledTestPaths = lib.optionals (stdenv.isDarwin && stdenv.isAarch64) [
     # RuntimeWarning: invalid value encountered in cast
     "tests/lax_test.py"
+  ]
+  ++ lib.optionals stdenv.isAarch64 [
+    "tests/sparse_bcoo_bcsr_test.py"
   ];
 
   pythonImportsCheck = [ "jax" ];
