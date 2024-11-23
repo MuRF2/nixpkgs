@@ -5,6 +5,7 @@
   gitUpdater,
   testers,
   cmake,
+  gcc12,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -24,12 +25,14 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-C7ApayhubunkXBqJ/EqntaFPn6zk8rZ9fUqg7kbhvAk=";
   };
 
-  nativeBuildInputs = [ cmake ];
+  nativeBuildInputs = [ cmake gcc12 ];
 
   cmakeFlags = [
     (lib.cmakeBool "VVENC_INSTALL_FULLFEATURE_APP" true)
     (lib.cmakeBool "BUILD_SHARED_LIBS" (!stdenv.hostPlatform.isStatic))
   ];
+
+  buildInputs = [ gcc12 ];
 
   passthru = {
     updateScript = gitUpdater { rev-prefix = "v"; };
