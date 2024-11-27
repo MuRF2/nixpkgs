@@ -66,6 +66,7 @@ buildPythonPackage rec {
     # require network
     "test_opensearchpy/test_async/test_connection.py"
     "test_opensearchpy/test_async/test_server"
+    "test_opensearchpy/test_async/test_http_connection.py"
     "test_opensearchpy/test_server"
     "test_opensearchpy/test_server_secured"
   ];
