@@ -2,18 +2,18 @@
   lib,
   buildNpmPackage,
   fetchFromGitHub,
-  python311,
+  python312,
   nixosTests,
 }:
 let
   pname = "open-webui";
-  version = "0.3.35";
+  version = "0.4.6";
 
   src = fetchFromGitHub {
     owner = "open-webui";
     repo = "open-webui";
     rev = "refs/tags/v${version}";
-    hash = "sha256-H46qoOEajPKRU/Lbd6r7r0vRjWSd7uGoA0deaDv6HSw=";
+    hash = "sha256-Zzytv2OLy3RENNWzRjjDh7xnJyX+H9/dh1Xj2HIsn6I=";
   };
 
   frontend = buildNpmPackage {
@@ -21,7 +21,7 @@ let
 
     NODE_OPTIONS = "--max-old-space-size=4096";
 
-    npmDepsHash = "sha256-ohWSfwZfC/jfOpnNSqsvMyYnukk3Xa3Tq32PAl8Ds60=";
+    npmDepsHash = "sha256-36GdyqKcqhOYi1kRwXe0YTOtwbVUcEvLPPYy/A0IgE0=";
 
     # Disabling `pyodide:fetch` as it downloads packages during `buildPhase`
     # Until this is solved, running python packages from the browser will not work.
@@ -43,7 +43,7 @@ let
     '';
   };
 in
-python311.pkgs.buildPythonApplication rec {
+python312.pkgs.buildPythonApplication rec {
   inherit pname version src;
   pyproject = true;
 
@@ -63,7 +63,9 @@ python311.pkgs.buildPythonApplication rec {
     "pytest-docker"
   ];
 
-  dependencies = with python311.pkgs; [
+  dependencies = with python312.pkgs; [
+    aiocache
+    aiofiles
     aiohttp
     alembic
     anthropic
@@ -88,22 +90,24 @@ python311.pkgs.buildPythonApplication rec {
     flask-cors
     fpdf2
     ftfy
-    qdrant-client
     google-generativeai
     googleapis-common-protos
     langchain
     langchain-chroma
     langchain-community
     langfuse
+    ldap3
     markdown
     nltk
     openai
     opencv-python-headless
     openpyxl
+    opensearch-py
     pandas
     passlib
     peewee
     peewee-migrate
+    pgvector
     psutil
     psycopg2-binary
     pydub
@@ -121,21 +125,22 @@ python311.pkgs.buildPythonApplication rec {
     python-socketio
     pytube
     pyxlsb
+    qdrant-client
     rank-bm25
     rapidocr-onnxruntime
     redis
     requests
     sentence-transformers
+    soundfile
     tiktoken
     unstructured
     uvicorn
     validators
-    xhtml2pdf
     xlrd
     youtube-transcript-api
   ];
 
-  build-system = with python311.pkgs; [ hatchling ];
+  build-system = with python312.pkgs; [ hatchling ];
 
   pythonImportsCheck = [ "open_webui" ];
 
@@ -146,11 +151,11 @@ python311.pkgs.buildPythonApplication rec {
   };
 
   meta = {
+    changelog = "https://github.com/open-webui/open-webui/blob/${src.rev}/CHANGELOG.md";
     description = "Comprehensive suite for LLMs with a user-friendly WebUI";
     homepage = "https://github.com/open-webui/open-webui";
-    changelog = "https://github.com/open-webui/open-webui/blob/${src.rev}/CHANGELOG.md";
     license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ shivaraj-bh ];
     mainProgram = "open-webui";
+    maintainers = with lib.maintainers; [ shivaraj-bh ];
   };
 }
